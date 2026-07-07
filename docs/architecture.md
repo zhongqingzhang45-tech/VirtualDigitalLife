@@ -534,9 +534,13 @@ Presentation → Application → Domain ← Infrastructure
 - [development-rules.md](file:///workspace/docs/development-rules.md) — 开发规范
 - [coding-style.md](file:///workspace/docs/coding-style.md) — 代码风格
 - [decision-log.md](file:///workspace/docs/decision-log.md) — 决策记录（ADR）
+- [02-角色系统设计.md](file:///workspace/docs/02-角色系统设计.md) — 角色系统设计（Phase 2）
+- [03-personality-domain.md](file:///workspace/docs/03-personality-domain.md) — Personality Domain 详细设计
+- [04-character-data-model.md](file:///workspace/docs/04-character-data-model.md) — 角色数据模型设计
 
 ---
 
-**文档版本**: v1.0
+**文档版本**: v1.1
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect
+**变更说明**: v1.1 新增 Phase 2 角色系统相关文档链接。

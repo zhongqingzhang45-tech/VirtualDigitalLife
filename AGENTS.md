@@ -280,6 +280,21 @@ Existing Code
 
 **全部完成后，Phase 1 才算 ✅ Completed。**
 
+### Phase 2 验收清单（角色系统）
+
+```
+□ AIRI 角色模型分析完成
+□ 角色系统设计文档（02-角色系统设计.md）
+□ Personality Domain 详细设计（03-personality-domain.md）
+□ 角色数据模型设计（04-character-data-model.md）
+□ ADR-017/018 记录完成
+□ 所有文档互相链接
+□ 更新 AGENTS.md / 01_系统架构总览.md
+□ Git Commit
+```
+
+**全部完成后，Phase 2 才算 ✅ Completed。**
+
 详见 [development-rules.md 第十一节](file:///workspace/docs/development-rules.md)。
 
 ---
@@ -340,13 +355,16 @@ Existing Code
 ## 当前阶段
 
 ```
-Phase 1: 设计系统冻结  🟠 In Progress
-        ├─ 文档生成       ✅ Completed（7 份文档已真实生成）
-        ├─ 文档互相链接    ✅ Completed
-        ├─ ADR 记录       ✅ Completed（ADR-001 ~ ADR-016）
-        └─ Git Commit     🟡 Planned（待用户确认后执行）
+Phase 1: 设计系统冻结  ✅ Completed
     ↓
-Phase 2: 角色系统  🟡 Planned
+Phase 2: 角色系统  🟠 In Progress
+        ├─ AIRI 角色模型分析     ✅ Completed
+        ├─ 角色系统设计文档       ✅ Completed（02-角色系统设计.md）
+        ├─ Personality Domain 设计 ✅ Completed（03-personality-domain.md）
+        ├─ 角色数据模型设计       ✅ Completed（04-character-data-model.md）
+        ├─ ADR 记录             ✅ Completed（ADR-017 ~ ADR-018）
+        ├─ 文档互相链接          🟡 Planned
+        └─ Git Commit           🟡 Planned（待用户确认后执行）
     ↓
 Phase 3: 数字生命引擎  🟡 Planned
     ↓
@@ -359,13 +377,13 @@ Phase 6: 商业化  🟡 Planned
 Phase 7: 开放生态  🟡 Planned
 ```
 
-> ⚠️ **状态说明**：按 DoD 规范，Phase 1 在 Git Commit 完成前不算 ✅ Completed。
-> 当前剩余唯一项：Git Commit（待汇总变更后请求用户确认）。
+> ⚠️ **状态说明**：Phase 1 已全部完成（含 Git Commit: dfb11b0），标记为 ✅ Completed。
+> Phase 2 正在进行中，剩余文档互相链接与 Git Commit。
 
 ---
 
-**文档版本**: v1.1
+**文档版本**: v1.2
 **对应 Master Prompt**: v2.0
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect
-**变更说明**: v1.1 新增 Development Status / Definition of Done 章节，标准开发流程增加 DoD 自检与 Git Commit 步骤，禁止事项扩充至 19 条，当前阶段标识按 DoD 真实标记。
+**变更说明**: v1.2 新增 Phase 2 验收清单，更新当前阶段为 Phase 2 In Progress，Phase 1 标记为 Completed。

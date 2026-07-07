@@ -409,6 +409,65 @@
 
 ---
 
+## ADR-017：AIRI 角色模型复用策略
+
+- **标题**：完全复用 AIRI Character 实体作为角色聚合根，LifeOS 通过 Personality 扩展表增加结构化人格
+- **背景**：Phase 2 角色系统设计，需确定角色数据模型。AIRI 已有完整的 Character 实体体系（Base / Capabilities / AvatarModels / I18n / Prompts），且支持 CCC（Character Card V3）标准。
+- **为什么**：
+  - AIRI Character 已经覆盖了角色基础信息、能力配置、形象模型、多语言、Prompt 管理等全链路能力。
+  - 重复实现会造成冗余，且与 AIRI 生态脱节。
+  - LifeOS 的核心增值是**结构化人格系统**（五维参数 + 演化机制 + 说话风格），而 AIRI 的 personality 是自由文本 prompt，两者是互补而非替代关系。
+  - Prompt Compiler 模式可以将结构化参数编译为自然语言 prompt，无缝写入 AIRI 的 `character_prompts(type=personality)` 字段，实现零侵入对接。
+- **备选方案**：
+  - 完全重写角色系统：重复造轮子，与 AIRI 脱节，升级困难。
+  - 直接使用 AIRI 自由文本 personality：没有结构化参数，无法支持人格演化、性格标签、数据分析等高级能力。
+  - 修改 AIRI 源码增加人格字段：违反"不修改 AIRI 架构"原则，升级维护成本高。
+- **最终方案**：
+  - **AIRI 原生表完全复用**：characters / character_i18n / character_prompts / character_capabilities / avatar_models 全部直接使用 AIRI 定义。
+  - **LifeOS 扩展表新增**：personality_states（一对一关联 characters）+ evolution_history + character_templates。
+  - **对接方式**：通过适配层（AiriCharacterAdapter）读写 AIRI Character，Personality Domain 将结构化参数编译为 prompt 写入 AIRI 的 personality prompt。
+  - **零侵入**：不修改 AIRI 源码，所有扩展通过外键关联 + API 对接实现。
+- **影响**：
+  - 角色数据模型分为 AIRI 原生层 + LifeOS 扩展层两层。
+  - Personality Domain 必须实现 Prompt Compiler 模块。
+  - 所有角色操作必须考虑数据一致性（AIRI 表 + 扩展表的事务边界）。
+  - 导入 AIRI 时需优先集成 Character 相关模块。
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-018：人格模型选型 — LifeOS-OCEAN 五维模型
+
+- **标题**：人格模型采用基于 OCEAN（大五人格）调整的 LifeOS-OCEAN 五维模型，通过 Prompt Compiler 编译为自然语言
+- **背景**：Phase 2 需要确定人格参数模型。可选方案包括大五人格（OCEAN）、MBTI、九型人格、自定义维度等。
+- **为什么**：
+  - **OCEAN 是心理学界最广泛认可的人格模型**，有坚实的学术基础，维度之间相对独立。
+  - **连续量化（0~1）** 比 MBTI 的二元分类更适合 AI 角色的渐进式演化。
+  - **五维结构简洁**，初期实现成本低，后续可以在每个维度下扩展子维度。
+  - **可解释性强**，用户能直观理解每个维度的含义。
+  - **Prompt Compiler 模式**使得人格参数可以灵活映射为自然语言 prompt，与 AIRI 的自由文本 personality 无缝对接。
+- **备选方案**：
+  - MBTI：16 型人格，用户认知度高，但二元分类过于粗糙，难以表达渐进变化，且学术界认可度低。
+  - 九型人格：类型丰富但理论基础薄弱，维度不独立，实现复杂。
+  - 自定义多维体系（如 8 维/12 维）：更精细但初期设计成本高，验证周期长，YAGNI。
+  - 纯 AI 驱动（无结构化参数）：灵活但不可控，无法支持人格演化、性格标签、数据分析等功能。
+- **最终方案**：
+  - **LifeOS-OCEAN 五维模型**：开放性 / 尽责性 / 外向性 / 宜人性 / 情绪稳定性，每维 0~1 连续值。
+  - **性格标签叠加**：五维组合产生 10+ 种具象性格标签（如"治愈者"、"理性参谋"、"元气开心果"），降低用户理解成本。
+  - **说话风格独立参数**：话量 / 语气 / emoji 频率 / 语气词密度 / 句式复杂度 / 称呼偏好，独立于五维模型。
+  - **Prompt Compiler 编译**：结构化参数 → 分块编译 → 自然语言 personality prompt → 写入 AIRI。
+  - **演化机制**：五维参数随记忆/互动/关系动态调整，单次变化上限 ±0.1，防止突变。
+- **影响**：
+  - Personality Domain 围绕五维模型设计数据结构与 Engine 接口。
+  - 角色创建流程提供预设模板 + 微调滑块的交互模式。
+  - 性格标签系统需要基于五维值的组合算法。
+  - Prompt Compiler 需要为每个维度编写 5 档描述模板。
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
 ## 相关文档
 
 - [AGENTS.md](file:///workspace/AGENTS.md) — 入口索引（最高优先级）
@@ -417,6 +476,9 @@
 - [design-spec.md](file:///workspace/docs/design-spec.md) — 设计规范 🔒 已冻结
 - [development-rules.md](file:///workspace/docs/development-rules.md) — 开发规范
 - [coding-style.md](file:///workspace/docs/coding-style.md) — 代码风格
+- [02-角色系统设计.md](file:///workspace/docs/02-角色系统设计.md) — 角色系统设计（Phase 2）
+- [03-personality-domain.md](file:///workspace/docs/03-personality-domain.md) — Personality Domain 详细设计
+- [04-character-data-model.md](file:///workspace/docs/04-character-data-model.md) — 角色数据模型设计
 
 ---
 
