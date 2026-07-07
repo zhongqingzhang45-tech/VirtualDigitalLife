@@ -295,6 +295,24 @@ Existing Code
 
 **全部完成后，Phase 2 才算 ✅ Completed。**
 
+### Phase 3 验收清单（数字生命引擎）
+
+```
+□ AIRI Body 层能力分析完成
+□ Brain-Body 分层架构设计（05-brain-body-architecture.md）
+□ Emotion Domain 详细设计（06-emotion-domain.md）
+□ Goal Domain 详细设计（07-goal-domain.md）
+□ Relationship Domain 详细设计（08-relationship-domain.md）
+□ Engine 框架与调度器设计（09-engine-framework.md）
+□ 数字生命引擎数据模型设计（10-digital-life-data-model.md）
+□ ADR-019~024 记录完成
+□ 所有文档互相链接
+□ 更新 AGENTS.md / 01_系统架构总览.md
+□ Git Commit
+```
+
+**全部完成后，Phase 3 才算 ✅ Completed。**
+
 详见 [development-rules.md 第十一节](file:///workspace/docs/development-rules.md)。
 
 ---
@@ -358,15 +376,18 @@ Existing Code
 Phase 1: 设计系统冻结  ✅ Completed
     ↓
 Phase 2: 角色系统  ✅ Completed
-        ├─ AIRI 角色模型分析     ✅ Completed
-        ├─ 角色系统设计文档       ✅ Completed（02-角色系统设计.md）
-        ├─ Personality Domain 设计 ✅ Completed（03-personality-domain.md）
-        ├─ 角色数据模型设计       ✅ Completed（04-character-data-model.md）
-        ├─ ADR 记录             ✅ Completed（ADR-0017 ~ ADR-018）
-        ├─ 文档互相链接          ✅ Completed
-        └─ Git Commit           ✅ Completed（8f45254）
     ↓
-Phase 3: 数字生命引擎  🟡 Planned
+Phase 3: 数字生命引擎  🟠 In Progress
+        ├─ AIRI Body 层能力分析    ✅ Completed
+        ├─ Brain-Body 分层架构     ✅ Completed（05-brain-body-architecture.md）
+        ├─ Emotion Domain 设计    ✅ Completed（06-emotion-domain.md）
+        ├─ Goal Domain 设计       ✅ Completed（07-goal-domain.md）
+        ├─ Relationship Domain 设计 ✅ Completed（08-relationship-domain.md）
+        ├─ Engine 框架与调度器     ✅ Completed（09-engine-framework.md）
+        ├─ 数据模型设计           ✅ Completed（10-digital-life-data-model.md）
+        ├─ ADR 记录             ✅ Completed（ADR-019 ~ ADR-024）
+        ├─ 文档互相链接          🟡 Planned
+        └─ Git Commit           🟡 Planned（待用户确认后执行）
     ↓
 Phase 4: 社区系统  🟡 Planned
     ↓
@@ -377,13 +398,13 @@ Phase 6: 商业化  🟡 Planned
 Phase 7: 开放生态  🟡 Planned
 ```
 
-> ✅ **Phase 2 已完成**：角色系统设计全部交付物已生成，文档互相链接已建立，Git Commit 已提交（8f45254）。
-> 下一阶段：Phase 3 数字生命引擎（Emotion + Behavior + Goal Domain 初版 + Engine 调度框架）。
+> 🟠 **Phase 3 进行中**：已完成 Brain-Body 架构、Emotion/Goal/Relationship Domain、Engine 框架、数据模型、ADR 记录。
+> 剩余文档互相链接与 Git Commit。
 
 ---
 
-**文档版本**: v1.3
+**文档版本**: v1.4
 **对应 Master Prompt**: v2.0
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect
-**变更说明**: v1.3 Phase 2 标记为 Completed，准备进入 Phase 3 数字生命引擎。
+**变更说明**: v1.4 新增 Phase 3 验收清单，更新当前阶段为 Phase 3 In Progress。

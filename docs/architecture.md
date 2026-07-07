@@ -537,10 +537,16 @@ Presentation → Application → Domain ← Infrastructure
 - [02-角色系统设计.md](file:///workspace/docs/02-角色系统设计.md) — 角色系统设计（Phase 2）
 - [03-personality-domain.md](file:///workspace/docs/03-personality-domain.md) — Personality Domain 详细设计
 - [04-character-data-model.md](file:///workspace/docs/04-character-data-model.md) — 角色数据模型设计
+- [05-brain-body-architecture.md](file:///workspace/docs/05-brain-body-architecture.md) — Brain-Body 分层架构（Phase 3）
+- [06-emotion-domain.md](file:///workspace/docs/06-emotion-domain.md) — Emotion Domain 详细设计
+- [07-goal-domain.md](file:///workspace/docs/07-goal-domain.md) — Goal Domain 详细设计
+- [08-relationship-domain.md](file:///workspace/docs/08-relationship-domain.md) — Relationship Domain 详细设计
+- [09-engine-framework.md](file:///workspace/docs/09-engine-framework.md) — Engine 框架与调度器设计
+- [10-digital-life-data-model.md](file:///workspace/docs/10-digital-life-data-model.md) — 数字生命引擎数据模型
 
 ---
 
-**文档版本**: v1.1
+**文档版本**: v1.2
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect
-**变更说明**: v1.1 新增 Phase 2 角色系统相关文档链接。
+**变更说明**: v1.2 新增 Phase 3 数字生命引擎相关文档链接（Brain-Body 架构 / Emotion / Goal / Relationship / Engine 框架 / 数据模型）。

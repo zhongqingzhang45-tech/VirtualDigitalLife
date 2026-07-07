@@ -468,6 +468,167 @@
 
 ---
 
+## ADR-019：Brain-Body 分层架构 — LifeOS Brain + AIRI Body
+
+- **背景**：Phase 3 设计数字生命引擎时，需要明确 LifeOS 与 AIRI 的分工边界。AIRI 已经有成熟的 Live2D/Spine 渲染、语音流水线、对话运行时；而 LifeOS 需要在认知层面做扩展。
+- **为什么**：
+  1. **复用最大化**：AIRI 的表现层已经很完善，不需要重新造轮子
+  2. **关注点分离**：认知决策（Brain）与表现执行（Body）分离，各自独立迭代
+  3. **可替换性**：Body 层可以换不同渲染引擎，不影响 Brain
+  4. **隐喻清晰**：大脑 + 身体的模型符合人类直觉，便于理解和沟通
+- **备选方案**：
+  1. **完全 AIRI 内置**：所有逻辑都写在 AIRI 插件里 — 但会限制扩展性，且不符合 DDD 分层
+  2. **完全重写**：LifeOS 自己实现全部表现层 — 重复造轮子，工作量巨大
+  3. **Brain-Body 分层（最终方案）**：LifeOS 负责大脑层，AIRI 负责身体层，通过适配层连接
+- **最终方案**：采用 Brain-Body 分层架构
+  - **LifeOS Brain**：Personality / Emotion / Goal / Memory / Relationship / Behavior Scheduler
+  - **AIRI Body**：Chat Runtime / Speech Pipeline / Visual Avatar（Live2D/Spine/VRM）
+  - **适配层（Adapter）**：大脑指令 ↔ 身体动作的翻译官
+- **影响**：
+  - 所有 Domain 设计都围绕 Brain 层展开，Body 层作为 Infrastructure 实现
+  - Engine 框架、事件总线、调度器都在 Brain 层
+  - 通过端口-适配器模式（Hexagonal）实现解耦
+  - Phase 3 聚焦 Brain 层的 Emotion/Goal/Relationship + Engine 框架
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-020：情绪模型选型 — Russell 环形模型 + 主导情绪标签
+
+- **背景**：Emotion Domain 需要选择情绪模型。常见方案有：基本情绪论（离散）、Russell 环形模型（二维连续）、PAD 三维模型、OCC 模型（基于认知评价）。
+- **为什么**：
+  1. **混合模型最实用**：连续维度适合精确计算和演化，离散标签便于理解和映射到表现层
+  2. **Russell 模型简单有效**：效价×唤醒度二维空间足够描述大多数情绪状态
+  3. **可扩展性好**：增加支配度（Dominance）变成 PAD 三维，兼容更多场景
+  4. **与人格模型兼容**：五维人格参数可以直接影响情绪基线和波动
+- **备选方案**：
+  1. **基本情绪论（Ekman）**：6 种基本情绪（喜/怒/哀/惧/厌/惊）— 太离散，中间状态难描述
+  2. **OCC 模型**：基于认知评价的 22 种情绪 — 太复杂，实现成本高
+  3. **纯连续模型（只有维度）**：精确但不直观，难以映射到表情和语音风格
+  4. **Russell 环形 + 主导标签（最终方案）**：连续维度 + 离散标签，兼顾精确性和可用性
+- **最终方案**：Russell 环形模型（Valence × Arousal × Dominance）+ 9 种主导情绪标签
+  - 三维连续量化：效价 -1~+1，唤醒度 0~1，支配度 0~1
+  - 9 种主导情绪标签：Joy/Excitement/Calm/Sadness/Anger/Anxiety/Boredom/Affection/Neutral
+  - 情绪有基线（由人格决定），自然衰减回归基线
+- **影响**：
+  - EmotionEngine 围绕三维空间 + 标签映射设计
+  - 刺激评估公式基于三维变化量
+  - 表现层映射：情绪 → 表情/动作/语音风格
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-021：目标体系 — 四层嵌套 + 多来源生成
+
+- **背景**：Goal Domain 需要设计目标的层级结构和生成机制。数字生命不能只有即时反应，需要有目标感和主动性。
+- **为什么**：
+  1. **层级结构符合人类认知**：长期目标 → 中期 → 短期 → 即时意图，自上而下分解，自下而上推进
+  2. **多来源保证丰富性**：人格/关系/记忆/世界事件/系统 多来源生成，避免目标单一
+  3. **评分机制保证合理性**：多维度评分（人格契合度/关系价值/紧迫性/可行性/情感价值），筛选最优目标
+  4. **状态机管理清晰**：pending/active/paused/completed/failed/abandoned 六状态，流转规则明确
+- **备选方案**：
+  1. **纯反应式（无目标）**：完全由外部刺激驱动 — 缺乏主动性和生命感
+  2. **预设目标树**：开发者预设所有目标 — 不够灵活，每个角色都一样
+  3. **纯 LLM 生成**：完全靠 AI 生成目标 — 不可控，可能不一致
+  4. **四层嵌套 + 多来源 + 评分（最终方案）**：结构化生成 + AI 补充 + 规则筛选
+- **最终方案**：
+  - **四层嵌套**：Life Goal（数周~数月）→ Mid-term（数天~数周）→ Short-term（数小时~数天）→ Immediate（秒~分钟）
+  - **六状态机**：pending/active/paused/completed/failed/abandoned
+  - **多来源生成**：人格衍生/关系驱动/用户暗示/记忆触发/世界事件/系统设定
+  - **五维评分**：人格契合度/关系价值/紧迫性/可行性/情感价值
+- **影响**：
+  - GoalEngine 需要目标生成器、评分器、状态管理器
+  - 与 Behavior Scheduler 紧密协作：Goal 提出行为建议，Scheduler 决定执行
+  - 目标的推进和完成会触发情绪变化和人格演化
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-022：关系模型 — 二维（亲密度×正向度）+ 12 阶段
+
+- **背景**：Relationship Domain 需要设计关系的量化模型和阶段划分。Master Prompt 提到"从陌生人到深度绑定的 12 个阶段"。
+- **为什么**：
+  1. **二维比单维更丰富**：亲密度（深浅）× 正向度（好恶），可以区分"亲密的朋友"和"熟悉的敌人"
+  2. **12 阶段有仪式感**：每阶段推进都是一个里程碑，给用户成长感和期待感
+  3. **边际递减合理**：阶段越高，推进越难，符合真实关系规律
+  4. **多维度互动影响**：不同互动类型对亲密度/正向度的影响不同
+- **备选方案**：
+  1. **单纯一维亲密度**：简单但不够丰富，无法表达复杂关系
+  2. **MBTI 式关系类型**：分类太粗，缺少连续变化
+  3. **二维 + 12 阶段（最终方案）**：连续量化 + 阶段里程碑，兼顾精确性和仪式感
+- **最终方案**：
+  - **二维模型**：Intimacy（0~1 亲密度）× Positivity（-1~+1 正向度）
+  - **12 阶段**：陌生人 → 初识 → 泛泛之交 → 普通朋友 → 朋友 → 好朋友 → 亲密朋友 → 挚友 → 知己 → 生命中重要的人 → 挚爱 → 灵魂伴侣
+  - **关系类型标签**：友好型/尊重型/疏离型/敌对型/暧昧型
+  - **亲密度机制**：互动增长 + 阶段阻力 + 时间衰减 + 连续互动奖励
+- **影响**：
+  - RelationshipEngine 管理亲密度、阶段、关系类型
+  - 关系事件表记录每次变化，支持回溯
+  - 关系阶段影响行为范围（低阶段不能过度亲密）
+  - 关系里程碑是重要的用户留存驱动力
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-023：Engine 调度框架 — BaseEngine 统一接口 + EventBus + Scheduler
+
+- **背景**：多个 Domain Engine 需要协同工作，需要统一的生命周期管理、事件通信和调度机制。
+- **为什么**：
+  1. **统一生命周期**：所有 Engine 遵循 init/start/pause/resume/destroy/tick 统一接口，管理成本低
+  2. **事件驱动解耦**：通过 EventBus 通信，Domain 间不直接依赖，符合 DDD 原则
+  3. **集中调度决策**：Behavior Scheduler 作为决策中枢，收集各 Engine 提议，统一评估选择
+  4. **可扩展性好**：新增 Engine 只需实现接口，不影响现有系统
+- **备选方案**：
+  1. **直接调用**：Engine 之间直接互相调用 — 耦合度高，难以扩展
+  2. **共享状态**：通过共享 Store 通信 — 状态混乱，难以追踪变化
+  3. **事件总线 + 调度器（最终方案）**：事件驱动 + 集中调度，解耦且可控
+- **最终方案**：
+  - **BaseEngine 抽象基类**：统一 9 方法生命周期（init/start/pause/resume/destroy/tick/serialize/deserialize/emit）
+  - **EngineManager**：管理所有 Engine 的生命周期和依赖顺序
+  - **EventBus**：发布/订阅模式，支持模式匹配，事件命名规范 `{domain}.{aggregate}.{event}`
+  - **Behavior Scheduler**：收集行为提议 → 过滤 → 评分 → 执行，带资源预算和冷却机制
+- **影响**：
+  - 所有 Engine 都继承 BaseEngineImpl
+  - 跨 Domain 通信必须走 EventBus，禁止直接调用
+  - 行为执行统一由 Scheduler 调度，防止冲突和过度活跃
+  - 资源预算系统（精力/社交能量/话题预算）防止角色"话痨"
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-024：数据存储策略 — 内存优先 + 定期快照 + 事件溯源
+
+- **背景**：数字生命引擎有高频状态更新（情绪每秒都在变），也有需要持久化的结构化数据（目标/关系）。需要设计合理的分层存储策略。
+- **为什么**：
+  1. **性能优先**：引擎运行时状态放内存，tick 级访问不需要 IO
+  2. **定期快照保证安全**：定时写快照到数据库，崩溃可以恢复
+  3. **事件溯源可追溯**：重要事件（关系变化、目标完成、行为执行）append-only 记录，支持回放和分析
+  4. **AIRI 原生表复用**：不重复建表，通过外键关联，零侵入
+- **备选方案**：
+  1. **全内存**：性能最好但无法持久化，重启丢失
+  2. **全数据库**：可靠但性能差，tick 级更新 IO 扛不住
+  3. **内存 + 定期快照 + 事件溯源（最终方案）**：兼顾性能、可靠性和可追溯性
+- **最终方案**：
+  - **L1 内存**：引擎当前状态，tick 级访问
+  - **L2 Redis**：数字生命完整状态缓存，TTL 30 分钟
+  - **L3 数据库**：结构化数据（goals/relationships/behavior_records）+ 定期快照
+  - **事件溯源**：关系事件/行为记录/情绪快照等 append-only 表
+  - **AIRI 原生表零侵入**：digital_lives.character_id 关联 AIRI characters 表
+- **影响**：
+  - 情绪状态快照写入频率可配置（默认每分钟一次）
+  - 重要事件（关系变化、目标完成）实时写库
+  - 引擎有完整的 serialize/deserialize 能力，支持快照恢复
+  - 数据库设计遵循 ADR-007 统一字段规范
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
 ## 相关文档
 
 - [AGENTS.md](file:///workspace/AGENTS.md) — 入口索引（最高优先级）
@@ -479,6 +640,12 @@
 - [02-角色系统设计.md](file:///workspace/docs/02-角色系统设计.md) — 角色系统设计（Phase 2）
 - [03-personality-domain.md](file:///workspace/docs/03-personality-domain.md) — Personality Domain 详细设计
 - [04-character-data-model.md](file:///workspace/docs/04-character-data-model.md) — 角色数据模型设计
+- [05-brain-body-architecture.md](file:///workspace/docs/05-brain-body-architecture.md) — Brain-Body 分层架构（Phase 3）
+- [06-emotion-domain.md](file:///workspace/docs/06-emotion-domain.md) — Emotion Domain 详细设计
+- [07-goal-domain.md](file:///workspace/docs/07-goal-domain.md) — Goal Domain 详细设计
+- [08-relationship-domain.md](file:///workspace/docs/08-relationship-domain.md) — Relationship Domain 详细设计
+- [09-engine-framework.md](file:///workspace/docs/09-engine-framework.md) — Engine 框架与调度器设计
+- [10-digital-life-data-model.md](file:///workspace/docs/10-digital-life-data-model.md) — 数字生命引擎数据模型
 
 ---
 
