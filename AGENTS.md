@@ -358,6 +358,23 @@ Existing Code
 
 **全部完成后，Phase 6 才算 ✅ Completed。**
 
+### Phase 7 验收清单（开放生态）
+
+```
+□ 开放生态总体架构设计（23-open-ecosystem-architecture.md）
+□ Plugin Domain 详细设计（24-plugin-domain.md）
+□ 开发者平台设计（25-developer-platform.md）
+□ API 开放平台设计（26-api-platform-design.md）
+□ Digital Life Protocol 协议规范（27-digital-life-protocol.md）
+□ 开放生态数据模型设计（28-ecosystem-data-model.md）
+□ ADR-037~041 记录完成
+□ 所有文档互相链接
+□ 更新 AGENTS.md / 01_系统架构总览.md
+□ Git Commit
+```
+
+**全部完成后，Phase 7 才算 ✅ Completed。**
+
 详见 [development-rules.md 第十一节](file:///workspace/docs/development-rules.md)。
 
 ---
@@ -438,16 +455,24 @@ Phase 6: 商业化  ✅ Completed
         ├─ 文档互相链接        ✅ Completed
         └─ Git Commit         ✅ Completed（bd32d2a）
     ↓
-Phase 7: 开放生态  🟡 Planned
+Phase 7: 开放生态  🟠 In Progress
+        ├─ 开放生态总体架构       🟠 In Progress（23-open-ecosystem-architecture.md）
+        ├─ Plugin Domain        🟠 In Progress（24-plugin-domain.md）
+        ├─ 开发者平台           🟠 In Progress（25-developer-platform.md）
+        ├─ API 开放平台         🟠 In Progress（26-api-platform-design.md）
+        ├─ Digital Life Protocol 🟠 In Progress（27-digital-life-protocol.md）
+        ├─ 数据模型设计         🟠 In Progress（28-ecosystem-data-model.md）
+        ├─ ADR 记录           ✅ Completed（ADR-037 ~ ADR-041）
+        ├─ 文档互相链接        🟡 Planned
+        └─ Git Commit         🟡 Planned
 ```
 
-> ✅ **Phase 6 已完成**：商业化架构 + 订阅/钱包/Marketplace 三域 + 数据模型 + ADR-033~036 已全部提交（bd32d2a）。
-> 下一阶段：Phase 7 开放生态。
+> 🟠 **Phase 7 进行中**：开放生态总体架构 + Plugin/Developer/API 三域 + Digital Life Protocol + 数据模型 + ADR-037~041 已完成，待文档链接与 Git Commit。
 
 ---
 
-**文档版本**: v2.1
+**文档版本**: v2.2
 **对应 Master Prompt**: v2.0
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect
-**变更说明**: v2.1 Phase 6 标记为 Completed。
+**变更说明**: v2.2 新增 Phase 7 验收清单，Phase 7 标记为 In Progress。
