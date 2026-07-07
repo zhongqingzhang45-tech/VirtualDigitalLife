@@ -523,6 +523,17 @@ Default → Hover（边框变亮）→ Focus（主色边框 + 发光外描边）
 
 ---
 
+## 相关文档
+
+- [AGENTS.md](file:///workspace/AGENTS.md) — 入口索引（最高优先级）
+- [01_系统架构总览.md](file:///workspace/docs/01_系统架构总览.md) — 架构总览（高层概念）
+- [architecture.md](file:///workspace/docs/architecture.md) — 系统架构（技术基线）
+- [development-rules.md](file:///workspace/docs/development-rules.md) — 开发规范
+- [coding-style.md](file:///workspace/docs/coding-style.md) — 代码风格
+- [decision-log.md](file:///workspace/docs/decision-log.md) — 决策记录（ADR）
+
+---
+
 **文档版本**: v1.0（冻结）
 **设计语言**: Anemone × Neon
 **最后更新**: 2026-07-08

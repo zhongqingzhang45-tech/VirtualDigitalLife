@@ -330,4 +330,94 @@
 
 ---
 
+## ADR-014：开发状态规范（Development Status）
+
+- **标题**：建立统一的开发状态标记体系，禁止虚报完成状态
+- **背景**：AI 协作开发中存在"把计划描述成结果"的风险，状态不真实会导致用户误判进度、决策失误。
+- **为什么**：
+  - "已设计 / 已规划"等模糊措辞无法准确反映真实进度。
+  - 未真实完成就标记 Completed 会破坏信任链。
+  - 需要明确的状态语义，让 AI 与人类对"完成"有共同理解。
+- **备选方案**：
+  - 仅用 TodoWrite 的 pending/in_progress/completed 三态：粒度不足，无法表达 Blocked/Deprecated。
+  - 不建立状态规范：依赖每次自觉，不可靠。
+- **最终方案**：
+  - 5 种状态标记：✅ Completed / 🟠 In Progress / 🟡 Planned / 🔴 Blocked / ⚫ Deprecated。
+  - 每种状态有明确的"必须满足"条件。
+  - 强制使用场景：TodoWrite / Phase 标识 / ADR 影响评估 / 进度汇报。
+  - 禁止行为清单：计划完成→标记 Completed、部分完成→标记 Completed、测试未通过→标记 Completed、Lint 报错→标记 Completed、模糊措辞代替明确状态。
+- **影响**：
+  - 所有任务汇报必须使用统一状态标记。
+  - development-rules.md 新增第十节 Development Status。
+  - AGENTS.md 新增 Development Status 章节。
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-015：Definition of Done（DoD 完成定义）
+
+- **标题**：建立任务级与 Phase 级的 DoD，任何任务只有满足全部条件才能标记 Completed
+- **背景**：缺乏明确的"完成定义"导致完成标准模糊，AI 容易在代码/文档/测试未全部就绪时就标记完成。
+- **为什么**：
+  - 代码完成 ≠ 任务完成（还需文档、测试、Lint、Type Check、ADR、AGENTS、Git Commit）。
+  - Phase 级完成需要交付物真实生成 + 互相链接 + ADR + Git Commit 全部满足。
+  - 明确的 DoD 是状态规范（ADR-014）的执行基础。
+- **备选方案**：
+  - 仅要求代码完成：文档/测试容易遗漏，质量不可控。
+  - 每个 Phase 自定义 DoD：标准不统一，难以横向对比。
+- **最终方案**：
+  - **任务级 DoD（8 项）**：代码完成 / 文档完成 / 测试完成 / Lint 通过 / Type Check 通过 / ADR 更新 / AGENTS 更新 / Git Commit。
+  - **Phase 级 DoD（5 项）**：交付物真实生成 / 互相链接 / ADR 记录 / Git Commit / 验收清单全勾。
+  - **文档类任务 DoD 简化版（5 项）**：文件真实创建 / 内容真实写入 / 引用真实链接 / 互相链接 / Git Commit。
+  - **Phase 1 验收清单**：11 项（分析 iiRose / 6 份核心文档 / 01 文档更新 / 互相链接 / ADR / Git Commit）。
+  - **DoD 自检清单**：提交前必须自检并展示给用户。
+- **影响**：
+  - development-rules.md 新增第十一节 Definition of Done。
+  - AGENTS.md 新增 Definition of Done 章节 + Phase 1 验收清单。
+  - 标准开发流程增加 DoD 自检步骤（第 12 步）。
+  - Phase 1 状态从"已完成"修正为"进行中"（Git Commit 未完成）。
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-016：Git Workflow 强化
+
+- **标题**：建立标准化的 Git 提交流程，高风险操作必须用户确认，禁止 git add .
+- **背景**：经验 Recall 158446 暴露了 Git 提交流程的多个问题：未确认就删除锁文件、未汇总就提交、高风险操作无门槛。
+- **为什么**：
+  - `git add .` / `git add -A` 容易误提交敏感文件（.env / credentials）或大文件。
+  - 高风险操作（push / merge / rebase / reset --hard）一旦执行不可逆，必须用户确认。
+  - 锁文件冲突（.git/index.lock）处理不当会破坏 Git 状态。
+  - 提交前需要汇总变更 + DoD 自检，避免误提交。
+- **备选方案**：
+  - 信任 AI 自主提交：风险高，经验证明不可靠。
+  - 完全人工提交：效率低，AI 协作场景下不现实。
+- **最终方案**：
+  - **标准提交流程（7 步）**：汇总变更 → DoD 自检 → 用户确认 → 按文件粒度暂存 → Conventional Commit 消息 → 提交 → 验证。
+  - **暂存规则**：必须 `git add <file>`，禁止 `git add .` / `git add -A` / `git add *`。
+  - **锁文件冲突处理**：4 步流程（解释成因 → 询问用户 → 确认后删除 → 失败输出替代方案），禁止未确认就删除。
+  - **高风险操作清单（7 项）**：push / push --force / merge / rebase / reset --hard / checkout . / branch -D / 删除锁文件，全部必须用户确认。
+- **影响**：
+  - development-rules.md 第九节 Git 规范扩展为 Git Workflow（7 小节）。
+  - AGENTS.md 禁止事项新增 3 条（git add . / 跳过 Git Commit / 未确认高风险操作）。
+  - 标准开发流程新增第 13 步 Git Commit。
+  - 所有 Git 提交必须先汇总变更并请求用户确认。
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## 相关文档
+
+- [AGENTS.md](file:///workspace/AGENTS.md) — 入口索引（最高优先级）
+- [01_系统架构总览.md](file:///workspace/docs/01_系统架构总览.md) — 架构总览（高层概念）
+- [architecture.md](file:///workspace/docs/architecture.md) — 系统架构（技术基线）
+- [design-spec.md](file:///workspace/docs/design-spec.md) — 设计规范 🔒 已冻结
+- [development-rules.md](file:///workspace/docs/development-rules.md) — 开发规范
+- [coding-style.md](file:///workspace/docs/coding-style.md) — 代码风格
+
+---
+
 *（后续 ADR 按编号追加，不得修改或删除已有记录）*

@@ -110,11 +110,14 @@ Existing Code
 > - API 规范（RESTful + 响应格式 + 错误码体系）
 > - DDD 规范（四层依赖方向 + 跨 Domain 事件通信 + 聚合根）
 > - 测试规范（金字塔 + 覆盖率要求 + Vitest / Playwright）
-> - Git 规范（分支命名 + Conventional Commits + PR 规范）
+> - **Git Workflow（提交规范）**：标准提交流程 / 暂存规则 / 锁文件处理 / 高风险操作清单 / PR 规范
+> - **Development Status（开发状态规范）**：5 种状态标记 + 禁止虚报
+> - **Definition of Done（完成定义 DoD）**：任务级 / Phase 级 / 文档类 DoD + 自检清单
 > - 依赖管理 + 性能规范 + 安全规范
 > - 代码组织 8 原则
 
-> **什么时候读**：开始任何模块开发、新增功能、写测试之前。
+> **什么时候读**：开始任何模块开发、新增功能、写测试、提交代码之前。
+> **特别注意**：标记任务完成前必须自检 DoD（见 development-rules.md 第十一节）。
 
 ---
 
@@ -189,7 +192,95 @@ Existing Code
 10. 测试
         ↓
 11. 更新 ADR（如有重大决策）
+        ↓
+12. DoD 自检（见下方 Definition of Done）
+        ↓
+13. Git Commit（按 Git Workflow 流程，高风险操作需用户确认）
 ```
+
+> ⚠️ 第 12、13 步为新增强制步骤。未通过 DoD 自检，禁止标记任务 Completed；未提交 Git Commit，Phase 级别不算完成。
+
+---
+
+## Development Status（开发状态规范）
+
+> **核心原则：禁止虚报完成状态。不要把计划描述成结果。**
+
+### 状态标记
+
+| 状态 | 标记 | 必须满足 |
+|------|------|---------|
+| **已完成** | `✅ Completed` | 文件真实创建、内容真实写入、代码真实修改、测试真实通过、DoD 全部满足 |
+| **进行中** | `🟠 In Progress` | 已开始但未完成（需明确说明剩余工作） |
+| **已计划** | `🟡 Planned` | 已规划但未开始 |
+| **已阻塞** | `🔴 Blocked` | 被外部因素阻塞（需说明阻塞原因） |
+| **已废弃** | `⚫ Deprecated` | 不再实施（需说明原因） |
+
+### 强制场景
+
+- TodoWrite 任务列表
+- Phase 阶段标识
+- ADR 影响评估
+- 对用户的进度汇报
+
+### 禁止行为
+
+- ❌ 计划写完文档 → 标记 Completed
+- ❌ 部分完成 → 标记 Completed
+- ❌ 测试未通过 → 标记 Completed
+- ❌ Lint 报错 → 标记 Completed
+- ❌ 用"已设计/已规划"等模糊措辞代替明确状态
+
+详见 [development-rules.md 第十节](file:///workspace/docs/development-rules.md)。
+
+---
+
+## Definition of Done（完成定义 / DoD）
+
+### 任务级 DoD
+
+任何任务只有满足以下**全部**条件，才能标记为 `✅ Completed`：
+
+```
+□ 代码完成（功能实现，无 TODO/FIXME 残留）
+□ 文档完成（相关文档已同步更新）
+□ 测试完成（单元测试 + 集成测试，覆盖率达标）
+□ Lint 通过（ESLint 0 Error）
+□ Type Check 通过（tsc --noEmit 无报错）
+□ ADR 更新（如有重大决策）
+□ AGENTS 更新（如需要）
+□ Git Commit（已提交到版本控制）
+```
+
+### Phase 级 DoD
+
+```
+□ 该 Phase 所有交付物真实生成（文件存在 + 内容写入）
+□ 该 Phase 所有交付物互相链接
+□ 该 Phase 所有 ADR 已记录
+□ 该 Phase 所有文档已 Git Commit
+□ 该 Phase 验收清单全部勾选
+```
+
+### Phase 1 验收清单（Design Freeze）
+
+```
+□ 分析 iiRose
+□ design-spec.md（真实生成）
+□ development-rules.md（真实生成）
+□ coding-style.md（真实生成）
+□ architecture.md（真实生成）
+□ decision-log.md（真实生成）
+□ AGENTS.md（真实生成）
+□ 更新 01_系统架构总览.md
+□ 所有文档互相链接
+□ ADR 记录完成
+□ Git Commit
+```
+
+**全部完成后，Phase 1 才算 ✅ Completed。**
+
+详见 [development-rules.md 第十一节](file:///workspace/docs/development-rules.md)。
 
 ---
 
@@ -213,6 +304,11 @@ Existing Code
 | 12 | 跨 Layer 直接调用（必须遵循依赖方向） |
 | 13 | 跳阶段开发（必须按 Phase 1→7 顺序） |
 | 14 | 硬编码颜色 / 字号 / 间距（必须用 Token） |
+| 15 | **虚报完成状态**（未真实完成却标记 ✅ Completed） |
+| 16 | **跳过 DoD 自检**（未自检就标记任务完成） |
+| 17 | **跳过 Git Commit**（Phase 级完成必须包含 Git Commit） |
+| 18 | **使用 `git add .` / `git add -A`**（必须按文件粒度暂存） |
+| 19 | **未确认就执行高风险 Git 操作**（push/merge/rebase/reset --hard 等） |
 
 ---
 
@@ -244,24 +340,32 @@ Existing Code
 ## 当前阶段
 
 ```
-Phase 1: 设计系统冻结  ✅ 已完成
+Phase 1: 设计系统冻结  🟠 In Progress
+        ├─ 文档生成       ✅ Completed（7 份文档已真实生成）
+        ├─ 文档互相链接    ✅ Completed
+        ├─ ADR 记录       ✅ Completed（ADR-001 ~ ADR-016）
+        └─ Git Commit     🟡 Planned（待用户确认后执行）
     ↓
-Phase 2: 角色系统  ◀── 下一阶段
+Phase 2: 角色系统  🟡 Planned
     ↓
-Phase 3: 数字生命引擎
+Phase 3: 数字生命引擎  🟡 Planned
     ↓
-Phase 4: 社区系统
+Phase 4: 社区系统  🟡 Planned
     ↓
-Phase 5: 记忆系统
+Phase 5: 记忆系统  🟡 Planned
     ↓
-Phase 6: 商业化
+Phase 6: 商业化  🟡 Planned
     ↓
-Phase 7: 开放生态
+Phase 7: 开放生态  🟡 Planned
 ```
+
+> ⚠️ **状态说明**：按 DoD 规范，Phase 1 在 Git Commit 完成前不算 ✅ Completed。
+> 当前剩余唯一项：Git Commit（待汇总变更后请求用户确认）。
 
 ---
 
-**文档版本**: v1.0
+**文档版本**: v1.1
 **对应 Master Prompt**: v2.0
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect
+**变更说明**: v1.1 新增 Development Status / Definition of Done 章节，标准开发流程增加 DoD 自检与 Git Commit 步骤，禁止事项扩充至 19 条，当前阶段标识按 DoD 真实标记。

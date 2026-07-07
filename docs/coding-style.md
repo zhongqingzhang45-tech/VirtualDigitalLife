@@ -590,6 +590,17 @@ const decayed = value * Math.exp(-decayRate * deltaTime / 1000)
 
 ---
 
+## 相关文档
+
+- [AGENTS.md](file:///workspace/AGENTS.md) — 入口索引（最高优先级）
+- [01_系统架构总览.md](file:///workspace/docs/01_系统架构总览.md) — 架构总览（高层概念）
+- [architecture.md](file:///workspace/docs/architecture.md) — 系统架构（技术基线）
+- [design-spec.md](file:///workspace/docs/design-spec.md) — 设计规范 🔒 已冻结
+- [development-rules.md](file:///workspace/docs/development-rules.md) — 开发规范
+- [decision-log.md](file:///workspace/docs/decision-log.md) — 决策记录（ADR）
+
+---
+
 **文档版本**: v1.0
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect

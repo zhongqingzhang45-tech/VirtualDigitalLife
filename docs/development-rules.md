@@ -451,7 +451,7 @@ describe('EmotionEngine', () => {
 
 ---
 
-## 九、Git 规范
+## 九、Git Workflow（提交规范）
 
 ### 9.1 分支命名
 
@@ -502,7 +502,66 @@ feat(emotion): add emotion decay mechanism
 Refs: #123
 ```
 
-### 9.3 PR 规范
+### 9.3 提交流程（标准步骤）
+
+每次提交必须遵循以下顺序，**不得跳步**：
+
+```
+1. 汇总变更（git status + git diff）
+        ↓
+2. 自检 DoD（见本文件第十一节）
+        ↓
+3. 用户确认变更范围（高风险操作必须确认）
+        ↓
+4. 按文件粒度暂存（git add <file>，禁止 git add .）
+        ↓
+5. 编写 Conventional Commit 消息
+        ↓
+6. 提交（git commit）
+        ↓
+7. 验证（git status + git log -1）
+```
+
+### 9.4 暂存规则
+
+- ✅ **必须按文件粒度暂存**：`git add docs/design-spec.md`
+- ❌ **禁止** `git add .` / `git add -A` / `git add *`（易误提交敏感文件或大文件）
+- ❌ **禁止** 提交 `.env` / `credentials.json` / 密钥文件
+- ❌ **禁止** 提交 `.git/index.lock`（若遇到锁文件冲突，先排查占用进程）
+
+### 9.5 锁文件冲突处理
+
+遇到 `.git/index.lock` 冲突时：
+
+```
+1. 解释锁的成因（并发 Git / 进程崩溃残留）
+        ↓
+2. 询问用户选择：
+   [a] 我已关闭相关进程，继续清锁
+   [b] 取消，稍后重试
+        ↓
+3. 仅在用户明确确认后执行 rm .git/index.lock
+        ↓
+4. 删除失败时输出可操作替代方案
+```
+
+**禁止**未确认就直接删除锁文件。
+
+### 9.6 高风险操作（必须用户确认）
+
+以下操作**必须**先汇总变更并请求用户确认，**不得自行执行**：
+
+| 操作 | 风险 |
+|------|------|
+| `git push` / `git push --force` | 远端不可逆 |
+| `git merge` | 可能产生冲突或破坏历史 |
+| `git rebase` | 重写历史 |
+| `git reset --hard` | 丢失工作区改动 |
+| `git checkout .` / `git restore .` | 丢弃未提交改动 |
+| `git branch -D` | 删除分支 |
+| 删除锁文件 | 可能破坏 Git 状态 |
+
+### 9.7 PR 规范
 
 - 每个 PR 对应一个功能或修复
 - PR 描述包含：背景、改动点、测试方法、截图（UI 相关）
@@ -511,14 +570,147 @@ Refs: #123
 
 ---
 
-## 十、依赖管理
+## 十、Development Status（开发状态规范）
 
-### 10.1 包管理
+### 10.1 核心原则
+
+> **禁止虚报完成状态。**
+>
+> **不要把计划描述成结果。**
+
+只有真正完成以下动作后，才能标记为对应状态：
+
+| 状态 | 标记 | 必须满足 |
+|------|------|---------|
+| **已完成** | `✅ Completed` | 文件真实创建、内容真实写入、代码真实修改、测试真实通过 |
+| **进行中** | `🟠 In Progress` | 已开始但未完成（明确说明剩余工作） |
+| **已计划** | `🟡 Planned` | 已规划但未开始 |
+| **已阻塞** | `🔴 Blocked` | 被外部因素阻塞（说明阻塞原因） |
+| **已废弃** | `⚫ Deprecated` | 不再实施（说明原因） |
+
+### 10.2 使用场景
+
+以下场景必须严格使用上述状态标记：
+
+1. **TodoWrite 任务列表**：每个任务完成后才能标记 completed
+2. **Phase 阶段标识**：Phase 完成需满足该 Phase 的 DoD
+3. **ADR 影响评估**：决策落地状态
+4. **架构文档模块清单**：每个模块的实施状态
+5. **对用户的进度汇报**：必须真实反映进度
+
+### 10.3 禁止行为
+
+- ❌ 计划写完文档 → 标记 Completed（实际未写入文件）
+- ❌ 部分完成 → 标记 Completed
+- ❌ 测试未通过 → 标记 Completed
+- ❌ Lint 报错 → 标记 Completed
+- ❌ 用"已设计/已规划"等模糊措辞代替明确状态
+
+### 10.4 状态汇报模板
+
+向用户汇报进度时，使用以下格式：
+
+```
+## 任务进度
+
+| 任务 | 状态 | 备注 |
+|------|------|------|
+| 创建 design-spec.md | ✅ Completed | 已写入 580 行 |
+| 实现 EmotionEngine | 🟠 In Progress | 接口完成，update 逻辑待写 |
+| 集成 AIRI | 🟡 Planned | 待 Phase 2 启动 |
+```
+
+---
+
+## 十一、Definition of Done（完成定义 / DoD）
+
+### 11.1 任务级 DoD
+
+任何任务只有满足以下**全部**条件，才能标记为 `✅ Completed`：
+
+```
+□ 代码完成（功能实现，无 TODO/FIXME 残留）
+□ 文档完成（相关文档已同步更新）
+□ 测试完成（单元测试 + 集成测试，覆盖率达标）
+□ Lint 通过（ESLint 0 Error）
+□ Type Check 通过（tsc --noEmit 无报错）
+□ ADR 更新（如有重大决策）
+□ AGENTS 更新（如需要）
+□ Git Commit（已提交到版本控制）
+```
+
+### 11.2 Phase 级 DoD
+
+每个 Phase 完成需满足该 Phase 定义的全部交付物 + 任务级 DoD：
+
+```
+□ 该 Phase 所有交付物真实生成（文件存在 + 内容写入）
+□ 该 Phase 所有交付物互相链接
+□ 该 Phase 所有 ADR 已记录
+□ 该 Phase 所有文档已 Git Commit
+□ 该 Phase 验收清单全部勾选
+```
+
+### 11.3 Phase 1 完成标准（Design Freeze）
+
+Phase 1 的具体验收清单：
+
+```
+□ 分析 iiRose
+□ design-spec.md（真实生成）
+□ development-rules.md（真实生成）
+□ coding-style.md（真实生成）
+□ architecture.md（真实生成）
+□ decision-log.md（真实生成）
+□ AGENTS.md（真实生成）
+□ 更新 01_系统架构总览.md
+□ 所有文档互相链接
+□ ADR 记录完成
+□ Git Commit
+```
+
+**全部完成后，Phase 1 才算 ✅ Completed。**
+
+### 11.4 文档类任务的 DoD
+
+纯文档任务（无代码）的 DoD 简化版：
+
+```
+□ 文件真实创建（路径存在）
+□ 内容真实写入（非空，非模板占位）
+□ 引用真实链接（文件路径可点击）
+□ 与其他文档互相链接
+□ Git Commit
+```
+
+### 11.5 DoD 自检清单
+
+提交前必须自检并展示给用户：
+
+```
+[DoD 自检]
+□ 代码完成：是/否
+□ 文档完成：是/否
+□ 测试完成：是/否/N/A
+□ Lint 通过：是/否/N/A
+□ Type Check 通过：是/否/N/A
+□ ADR 更新：是/否/N/A
+□ AGENTS 更新：是/否/N/A
+□ Git Commit：待执行
+```
+
+任一项为"否"时，**禁止**标记 Completed。
+
+---
+
+## 十二、依赖管理
+
+### 12.1 包管理
 
 - 使用 **pnpm**
 - monorepo 工作空间
 
-### 10.2 依赖分层
+### 12.2 依赖分层
 
 | 层级 | 可依赖 |
 |------|--------|
@@ -526,7 +718,7 @@ Refs: #123
 | apps/server | packages/lifeos-core, 后端相关 |
 | packages/lifeos-core | 纯逻辑，尽量零依赖 |
 
-### 10.3 新增依赖
+### 12.3 新增依赖
 
 - 新增依赖需评估：是否必要？是否可复用现有？
 - 生产依赖与开发依赖严格区分
@@ -534,9 +726,9 @@ Refs: #123
 
 ---
 
-## 十一、性能规范
+## 十三、性能规范
 
-### 11.1 前端性能
+### 13.1 前端性能
 
 - **Lazy Load**：路由级懒加载 + 组件级懒加载
 - **虚拟滚动**：长列表必须使用虚拟滚动
@@ -545,7 +737,7 @@ Refs: #123
 - **图片优化**：WebP 格式 + 懒加载 + 自适应尺寸
 - **CDN**：静态资源走 CDN
 
-### 11.2 后端性能
+### 13.2 后端性能
 
 - 数据库索引：查询字段必须有索引
 - 缓存：热点数据 Redis 缓存
@@ -554,15 +746,15 @@ Refs: #123
 
 ---
 
-## 十二、安全规范
+## 十四、安全规范
 
-### 12.1 前端安全
+### 14.1 前端安全
 
 - 所有用户输入必须转义（防 XSS）
 - Token 存储在 HttpOnly Cookie（优先）或 localStorage
 - 敏感操作二次确认
 
-### 12.2 后端安全
+### 14.2 后端安全
 
 - 参数校验（Joi / Zod）
 - SQL 注入防护（使用 ORM / 参数化查询）
@@ -571,7 +763,7 @@ Refs: #123
 
 ---
 
-## 十三、代码组织原则
+## 十五、代码组织原则
 
 1. **高内聚**：相关功能放在一起
 2. **低耦合**：模块间依赖最小化
@@ -584,6 +776,18 @@ Refs: #123
 
 ---
 
-**文档版本**: v1.0
+## 相关文档
+
+- [AGENTS.md](file:///workspace/AGENTS.md) — 入口索引（最高优先级）
+- [01_系统架构总览.md](file:///workspace/docs/01_系统架构总览.md) — 架构总览（高层概念）
+- [architecture.md](file:///workspace/docs/architecture.md) — 系统架构（技术基线）
+- [design-spec.md](file:///workspace/docs/design-spec.md) — 设计规范 🔒 已冻结
+- [coding-style.md](file:///workspace/docs/coding-style.md) — 代码风格
+- [decision-log.md](file:///workspace/docs/decision-log.md) — 决策记录（ADR）
+
+---
+
+**文档版本**: v1.1
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect
+**变更说明**: v1.1 新增 Git Workflow（强化）/ Development Status / Definition of Done 三节，原十/十一/十二/十三顺延为十二/十三/十四/十五。
