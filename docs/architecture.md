@@ -550,10 +550,15 @@ Presentation → Application → Domain ← Infrastructure
 - [15-memory-domain.md](file:///workspace/docs/15-memory-domain.md) — Memory Domain 详细设计（Phase 5）
 - [16-narrative-domain.md](file:///workspace/docs/16-narrative-domain.md) — Narrative Domain 初版
 - [17-memory-data-model.md](file:///workspace/docs/17-memory-data-model.md) — 记忆系统数据模型
+- [18-commercial-architecture.md](file:///workspace/docs/18-commercial-architecture.md) — 商业化总体架构（Phase 6）
+- [19-subscription-domain.md](file:///workspace/docs/19-subscription-domain.md) — 会员订阅系统
+- [20-wallet-asset-domain.md](file:///workspace/docs/20-wallet-asset-domain.md) — 钱包与虚拟资产
+- [21-marketplace-domain.md](file:///workspace/docs/21-marketplace-domain.md) — AI Marketplace
+- [22-commercial-data-model.md](file:///workspace/docs/22-commercial-data-model.md) — 商业化数据模型
 
 ---
 
-**文档版本**: v1.4
+**文档版本**: v1.5
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect
-**变更说明**: v1.4 新增 Phase 5 记忆系统相关文档链接（Memory / Narrative / 数据模型）。
+**变更说明**: v1.5 新增 Phase 6 商业化相关文档链接（架构/订阅/钱包/Marketplace/数据模型）。

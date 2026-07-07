@@ -342,6 +342,22 @@ Existing Code
 
 **全部完成后，Phase 5 才算 ✅ Completed。**
 
+### Phase 6 验收清单（商业化）
+
+```
+□ 商业化总体架构设计（18-commercial-architecture.md）
+□ 会员订阅系统设计（19-subscription-domain.md）
+□ 钱包与虚拟资产系统设计（20-wallet-asset-domain.md）
+□ AI Marketplace 设计（21-marketplace-domain.md）
+□ 商业化数据模型设计（22-commercial-data-model.md）
+□ ADR-033~036 记录完成
+□ 所有文档互相链接
+□ 更新 AGENTS.md / 01_系统架构总览.md
+□ Git Commit
+```
+
+**全部完成后，Phase 6 才算 ✅ Completed。**
+
 详见 [development-rules.md 第十一节](file:///workspace/docs/development-rules.md)。
 
 ---
@@ -411,25 +427,27 @@ Phase 3: 数字生命引擎  ✅ Completed
 Phase 4: 社区系统  ✅ Completed
     ↓
 Phase 5: 记忆系统  ✅ Completed
-        ├─ Memory Domain 设计     ✅ Completed（15-memory-domain.md）
-        ├─ Narrative Domain 初版  ✅ Completed（16-narrative-domain.md）
-        ├─ 数据模型设计           ✅ Completed（17-memory-data-model.md）
-        ├─ ADR 记录             ✅ Completed（ADR-029 ~ ADR-032）
-        ├─ 文档互相链接          ✅ Completed
-        └─ Git Commit           ✅ Completed（83c321d）
     ↓
-Phase 6: 商业化  🟡 Planned
+Phase 6: 商业化  🟠 In Progress
+        ├─ 商业化总体架构       ✅ Completed（18-commercial-architecture.md）
+        ├─ 会员订阅系统         ✅ Completed（19-subscription-domain.md）
+        ├─ 钱包与虚拟资产       ✅ Completed（20-wallet-asset-domain.md）
+        ├─ AI Marketplace       ✅ Completed（21-marketplace-domain.md）
+        ├─ 数据模型设计         ✅ Completed（22-commercial-data-model.md）
+        ├─ ADR 记录           ✅ Completed（ADR-033 ~ ADR-036）
+        ├─ 文档互相链接        🟡 Planned
+        └─ Git Commit         🟡 Planned（待用户确认后执行）
     ↓
 Phase 7: 开放生态  🟡 Planned
 ```
 
-> ✅ **Phase 5 已完成**：Memory + Narrative 初版 + 数据模型 + ADR-029~032 已全部提交（83c321d）。
-> 下一阶段：Phase 6 商业化。
+> 🟠 **Phase 6 进行中**：已完成商业化架构 + 订阅/钱包/Marketplace 三域 + 数据模型 + ADR-033~036。
+> 剩余文档互相链接与 Git Commit。
 
 ---
 
-**文档版本**: v1.9
+**文档版本**: v2.0
 **对应 Master Prompt**: v2.0
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect
-**变更说明**: v1.9 Phase 5 标记为 Completed。
+**变更说明**: v2.0 新增 Phase 6 验收清单，更新当前阶段为 Phase 6 In Progress。

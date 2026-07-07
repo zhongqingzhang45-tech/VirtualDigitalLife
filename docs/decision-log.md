@@ -843,6 +843,94 @@
 
 ---
 
+## ADR-033：商业模式 — 混合模式（订阅 + 内购 + Marketplace 分成）
+
+- **背景**：Phase 6 需要确定 LifeOS 的商业模式，影响整个商业化系统设计。
+- **为什么**：
+  1. **单一模式不够**：纯订阅限制收入天花板，纯内购影响用户体验，纯 Marketplace 缺乏稳定收入
+  2. **混合模式互补**：订阅提供稳定收入，内购提供增量收入，Marketplace 建立生态
+  3. **用户分层**：Free 体验 → Pro 付费 → Creator 创作变现，形成用户成长路径
+  4. **核心竞争力**：不是"卖聊天次数"，而是"建立数字生命经济系统"
+- **备选方案**：
+  1. **纯订阅** — 收入稳定但天花板低
+  2. **纯内购**（F2P）— 体验好但收入不稳定
+  3. **混合模式（最终方案）** — 订阅 + 内购 + Marketplace 分成
+- **最终方案**：
+  - **Free**：免费体验，限制互动次数/记忆容量
+  - **Pro**（¥30/月）：无限互动 + 高级模型 + 完整记忆/情绪
+  - **Creator**（¥100/月）：Pro 权益 + Marketplace 发布 + 70% 收益分成
+- **影响**：需要 Subscription / Wallet / Marketplace 三个子系统
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-034：虚拟经济 — 单一付费货币（Life Coin）+ 成长积分（XP）
+
+- **背景**：需要确定虚拟货币体系，影响钱包系统和用户理解成本。
+- **为什么**：
+  1. **简单易懂**：双充值货币增加用户理解成本，单一付费货币更清晰
+  2. **成长感**：XP 作为免费成长积分，让免费用户也有进度感
+  3. **分离付费与成长**：Life Coin = 真实价值，XP = 投入时间，互不干扰
+  4. **汇率简单**：1 元 = 10 LC，直观
+- **备选方案**：
+  1. **双货币系统**（免费货币 + 付费货币）— 复杂，用户混淆
+  2. **单一货币**（只有 Life Coin）— 缺乏免费用户的成长感
+  3. **付费货币 + 成长积分（最终方案）** — Life Coin + XP，分离付费与成长
+- **最终方案**：
+  - **Life Coin**：充值获得，可消费/转账/退款，永不过期
+  - **XP**：行为奖励，不可购买/转移，用于等级和解锁
+- **影响**：钱包表设计双余额字段，XP 获取规则需定义
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-035：Marketplace 经济模型 — 70/30 分成 + Digital Life Package
+
+- **背景**：Marketplace 是创作者经济的核心，需要确定交易单元和分成模型。
+- **为什么**：
+  1. **完整数字生命**：不只是卖模板，而是卖"角色+AI Agent+虚拟偶像"的完整包
+  2. **70/30 行业标准**：与 App Store / Google Play 一致，创作者有动力
+  3. **多类型商品**：模板/插件/外观/声音/特效，丰富市场
+  4. **T+7 结算**：7 天冷静期防止退款滥用，保护平台
+- **备选方案**：
+  1. **仅模板** — 太单一，市场不活跃
+  2. **80/20 分成** — 创作者更多但平台收入少
+  3. **70/30 + 多类型（最终方案）** — 平衡创作者激励与平台收入
+- **最终方案**：
+  - 商品类型：完整数字生命 / 人格模板 / 外观 / 插件 / 声音包 / 特效
+  - 分成：70% 创作者 / 30% 平台
+  - 结算：T+7 可提现，T+3 到账
+- **影响**：需要 products / purchases / creator_earnings / withdrawals 表
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-036：支付安全边界 — 乐观锁 + 事务一致性 + 审计日志
+
+- **背景**：涉及真实货币交易，需要确保数据一致性和安全性。
+- **为什么**：
+  1. **并发安全**：多请求同时消费可能导致超扣，必须用乐观锁
+  2. **原子性**：扣款+记录+交付必须原子完成，使用数据库事务
+  3. **审计追踪**：所有交易记录只追加不修改，完整审计链
+  4. **合规要求**：支付数据需要满足金融级安全标准
+- **备选方案**：
+  1. **悲观锁**（SELECT FOR UPDATE）— 性能差，可能死锁
+  2. **分布式锁**（Redis）— 增加复杂度
+  3. **乐观锁 + 事务（最终方案）** — 简单高效，适合中等并发
+- **最终方案**：
+  - 余额操作使用乐观锁（version 字段）
+  - 交易+扣款+交付使用数据库事务
+  - 交易记录 append-only，不修改不删除
+  - 大额交易二次验证
+- **影响**：wallets 表增加 version 字段，所有余额操作需检查 version
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
 ## 相关文档
 
 - [AGENTS.md](file:///workspace/AGENTS.md) — 入口索引（最高优先级）
@@ -867,6 +955,11 @@
 - [15-memory-domain.md](file:///workspace/docs/15-memory-domain.md) — Memory Domain 详细设计
 - [16-narrative-domain.md](file:///workspace/docs/16-narrative-domain.md) — Narrative Domain 初版
 - [17-memory-data-model.md](file:///workspace/docs/17-memory-data-model.md) — 记忆系统数据模型
+- [18-commercial-architecture.md](file:///workspace/docs/18-commercial-architecture.md) — 商业化总体架构
+- [19-subscription-domain.md](file:///workspace/docs/19-subscription-domain.md) — 会员订阅系统
+- [20-wallet-asset-domain.md](file:///workspace/docs/20-wallet-asset-domain.md) — 钱包与虚拟资产
+- [21-marketplace-domain.md](file:///workspace/docs/21-marketplace-domain.md) — AI Marketplace
+- [22-commercial-data-model.md](file:///workspace/docs/22-commercial-data-model.md) — 商业化数据模型
 
 ---
 
