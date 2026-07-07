@@ -328,6 +328,20 @@ Existing Code
 
 **全部完成后，Phase 4 才算 ✅ Completed。**
 
+### Phase 5 验收清单（记忆系统）
+
+```
+□ Memory Domain 详细设计（15-memory-domain.md）
+□ Narrative Domain 初版设计（16-narrative-domain.md）
+□ 记忆系统数据模型设计（17-memory-data-model.md）
+□ ADR-029~032 记录完成
+□ 所有文档互相链接
+□ 更新 AGENTS.md / 01_系统架构总览.md
+□ Git Commit
+```
+
+**全部完成后，Phase 5 才算 ✅ Completed。**
+
 详见 [development-rules.md 第十一节](file:///workspace/docs/development-rules.md)。
 
 ---
@@ -395,28 +409,27 @@ Phase 2: 角色系统  ✅ Completed
 Phase 3: 数字生命引擎  ✅ Completed
     ↓
 Phase 4: 社区系统  ✅ Completed
-        ├─ Community Domain 设计   ✅ Completed（11-community-domain.md）
-        ├─ WorldState Domain 设计  ✅ Completed（12-world-state-domain.md）
-        ├─ Timeline Domain 设计    ✅ Completed（13-timeline-domain.md）
-        ├─ 数据模型设计           ✅ Completed（14-community-data-model.md）
-        ├─ ADR 记录             ✅ Completed（ADR-025 ~ ADR-028）
-        ├─ 文档互相链接          ✅ Completed
-        └─ Git Commit           ✅ Completed（11c290d）
     ↓
-Phase 5: 记忆系统  🟡 Planned
+Phase 5: 记忆系统  🟠 In Progress
+        ├─ Memory Domain 设计     ✅ Completed（15-memory-domain.md）
+        ├─ Narrative Domain 初版  ✅ Completed（16-narrative-domain.md）
+        ├─ 数据模型设计           ✅ Completed（17-memory-data-model.md）
+        ├─ ADR 记录             ✅ Completed（ADR-029 ~ ADR-032）
+        ├─ 文档互相链接          🟡 Planned
+        └─ Git Commit           🟡 Planned（待用户确认后执行）
     ↓
 Phase 6: 商业化  🟡 Planned
     ↓
 Phase 7: 开放生态  🟡 Planned
 ```
 
-> ✅ **Phase 4 已完成**：Community/WorldState/Timeline 三域 + 数据模型 + ADR-025~028 已全部提交（11c290d）。
-> 下一阶段：Phase 5 记忆系统。
+> 🟠 **Phase 5 进行中**：已完成 Memory Domain + Narrative 初版 + 数据模型 + ADR-029~032。
+> 剩余文档互相链接与 Git Commit。
 
 ---
 
-**文档版本**: v1.7
+**文档版本**: v1.8
 **对应 Master Prompt**: v2.0
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect
-**变更说明**: v1.7 Phase 4 标记为 Completed。
+**变更说明**: v1.8 新增 Phase 5 验收清单，更新当前阶段为 Phase 5 In Progress。

@@ -547,10 +547,13 @@ Presentation → Application → Domain ← Infrastructure
 - [12-world-state-domain.md](file:///workspace/docs/12-world-state-domain.md) — WorldState Domain 详细设计
 - [13-timeline-domain.md](file:///workspace/docs/13-timeline-domain.md) — Timeline Domain 详细设计
 - [14-community-data-model.md](file:///workspace/docs/14-community-data-model.md) — 社区系统数据模型
+- [15-memory-domain.md](file:///workspace/docs/15-memory-domain.md) — Memory Domain 详细设计（Phase 5）
+- [16-narrative-domain.md](file:///workspace/docs/16-narrative-domain.md) — Narrative Domain 初版
+- [17-memory-data-model.md](file:///workspace/docs/17-memory-data-model.md) — 记忆系统数据模型
 
 ---
 
-**文档版本**: v1.3
+**文档版本**: v1.4
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect
-**变更说明**: v1.3 新增 Phase 4 社区系统相关文档链接（Community / WorldState / Timeline / 数据模型）。
+**变更说明**: v1.4 新增 Phase 5 记忆系统相关文档链接（Memory / Narrative / 数据模型）。

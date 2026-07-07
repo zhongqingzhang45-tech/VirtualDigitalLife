@@ -735,6 +735,114 @@
 
 ---
 
+## ADR-029：记忆类型体系 — 简化三分类（情景/语义/情绪）
+
+- **背景**：Memory Domain 需要确定记忆的分类体系，影响数据模型和检索策略。
+- **为什么**：
+  1. **三分类覆盖核心场景**：情景（经历）+ 语义（事实）+ 情绪（感受），覆盖数字生命记忆的主要类型
+  2. **避免过度复杂**：经典 Tulving 四分类（情景/语义/程序/工作）中的程序记忆在数字生命中意义不大，工作记忆属于短期记忆层级
+  3. **映射清晰**：三种类型各有明确的形成机制、存储方式和检索模式
+  4. **可扩展**：未来需要可增加子类型，不破坏主分类
+- **备选方案**：
+  1. **Tulving 四分类**（情景/语义/程序/工作）— 程序记忆不适用，工作记忆是层级不是类型
+  2. **二分类**（陈述性/非陈述性）— 太粗，不利于精细化检索
+  3. **简化三分类（最终方案）** — 情景/语义/情绪，覆盖核心，简单清晰
+- **最终方案**：
+  - **情景记忆 Episodic**：特定时间地点的经历片段，有明确时间和场景
+  - **语义记忆 Semantic**：事实性知识、偏好、概念，相对稳定
+  - **情绪记忆 Emotional**：与情绪体验绑定的记忆，强调感受
+  - 三种类型共用同一张主表，通过 `memory_type` 字段区分
+- **影响**：
+  - 记忆表统一设计，按类型字段区分
+  - 检索时可按类型过滤
+  - 不同类型的记忆有不同的巩固和遗忘策略
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-030：向量存储方案 — pgvector 优先，预留扩展
+
+- **背景**：Memory Domain 的语义检索需要向量存储。需要在 pgvector、Milvus、Qdrant 等方案中选择。
+- **为什么**：
+  1. **简单够用**：pgvector 与 PostgreSQL 集成，无需额外服务，初期数据量（10万条以内）性能足够
+  2. **事务一致性**：向量数据与结构化数据在同一个数据库里，保证一致性
+  3. **运维成本低**：不引入新的技术栈，降低复杂度
+  4. **可扩展**：未来规模大了可以迁移到专业向量数据库，接口层不变
+  5. **1536 维兼容**：与 OpenAI 等主流 embedding 模型维度兼容
+- **备选方案**：
+  1. **Milvus / Qdrant**（专业向量数据库）— 性能强但运维复杂，初期不需要
+  2. **Redis + 向量插件** — 快但功能有限，不适合持久化
+  3. **纯关键词检索** — 简单但语义能力弱
+  4. **pgvector（最终方案）** — 平衡功能、复杂度、成本
+- **最终方案**：
+  - 使用 PostgreSQL + pgvector 扩展
+  - 向量维度 1536（OpenAI 兼容，可切换）
+  - 索引类型：IVFFlat（初期 100 lists），超 100 万条考虑 HNSW
+  - 混合检索：向量相似度 40% + 重要性 20% + 关联激活 20% + 时效性 10% + 情绪匹配 10%
+- **影响**：
+  - 数据库需要安装 pgvector 扩展
+  - 记忆表增加 embedding 向量字段
+  - 记忆写入时同步生成向量
+  - 检索支持语义 + 关键词混合模式
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-031：Narrative 与 Memory 关系 — 意义赋予层，依赖记忆素材
+
+- **背景**：Narrative Domain 和 Memory Domain 都涉及"过去"，需要明确分工与关系。
+- **为什么**：
+  1. **本质不同**：Memory 存储"发生了什么"（事实+感受），Narrative 生成"这意味着什么"（意义）
+  2. **依赖方向**：Narrative 依赖 Memory 提供素材，但 Memory 不依赖 Narrative
+  3. **价值不同**：Memory 是基础设施（决策依据），Narrative 是增值功能（情感价值）
+  4. **Timeline/Memory/Narrative 三层递进**：事实 → 感受 → 意义，每层独立但层层递进
+- **备选方案**：
+  1. **Narrative 合并到 Memory** — 职责混淆，Memory 会变得太复杂
+  2. **Narrative 合并到 Timeline** — Timeline 是事实记录，不应包含生成性内容
+  3. **独立 Narrative Domain（最终方案）** — 作为意义赋予层，依赖 Memory 和 Timeline 的素材
+- **最终方案**：
+  - **Narrative 是独立 Domain**，负责故事生成和意义赋予
+  - **数据流向**：Timeline（事实）→ Memory（感受）→ Narrative（意义）
+  - **触发方式**：里程碑事件触发、定时生成、用户主动请求
+  - **Phase 5 范围**：框架设计 + 接口定义，具体生成逻辑后续 Phase 完善
+- **影响**：
+  - 新增 Narrative Domain（14 Domain 中已有此域，正式激活）
+  - Narrative 回写故事节点到 Timeline
+  - Narrative 的生成依赖 Memory 的检索能力
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-032：记忆遗忘机制 — 主动遗忘 + 重要性保护
+
+- **背景**：数字生命的记忆不能无限增长，需要遗忘机制保持鲜活和高效。
+- **为什么**：
+  1. **真实感**：人类会遗忘，数字生命也应该有选择性遗忘，增强真实感
+  2. **效率**：记忆太多会降低检索效率，消耗存储空间
+  3. **质量**：遗忘不重要的细节，突出重要记忆
+  4. **再巩固效应**：被想起的记忆更牢固，符合认知规律
+- **备选方案**：
+  1. **永不遗忘** — 不真实，后期效率低
+  2. **容量限制 + LRU** — 简单粗暴，不符合重要性原则
+  3. **主动遗忘 + 重要性保护（最终方案）** — Ebbinghaus 风格的时间衰减 + 重要性权重
+- **最终方案**：
+  - **时间衰减**：可访问性随时间下降（类 Ebbinghaus 曲线）
+  - **重要性保护**：重要性 > 0.8 几乎不遗忘，0.5~0.8 缓慢衰减，< 0.5 快速衰减
+  - **再巩固**：被检索的记忆重要性提升，可访问性恢复
+  - **主动清理**：可访问性 < 0.1 且重要性 < 0.3 的记忆，定期清理或归档
+  - **归档而非删除**：低价值记忆归档到冷存储，不直接删除
+- **影响**：
+  - memories 表增加 accessibility 字段和 archived_at 字段
+  - 每日维护任务：巩固 + 遗忘 + 清理
+  - 检索时按 accessibility 加权
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
 ## 相关文档
 
 - [AGENTS.md](file:///workspace/AGENTS.md) — 入口索引（最高优先级）
@@ -756,6 +864,9 @@
 - [12-world-state-domain.md](file:///workspace/docs/12-world-state-domain.md) — WorldState Domain 详细设计
 - [13-timeline-domain.md](file:///workspace/docs/13-timeline-domain.md) — Timeline Domain 详细设计
 - [14-community-data-model.md](file:///workspace/docs/14-community-data-model.md) — 社区系统数据模型
+- [15-memory-domain.md](file:///workspace/docs/15-memory-domain.md) — Memory Domain 详细设计
+- [16-narrative-domain.md](file:///workspace/docs/16-narrative-domain.md) — Narrative Domain 初版
+- [17-memory-data-model.md](file:///workspace/docs/17-memory-data-model.md) — 记忆系统数据模型
 
 ---
 
