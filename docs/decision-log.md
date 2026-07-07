@@ -1066,6 +1066,118 @@
 
 ---
 
+## ADR-042：Life Core MVP 实施策略 — 前端体验 + 简易后端 + Domain First
+
+- **背景**：Phase 1-7 完成了全部设计蓝图，现在进入实施阶段。第一个 MVP 应该做什么、做到什么程度、技术路径如何选择，需要明确决策。
+- **为什么**：
+  1. **设计 ≠ 实现**：7 个 Phase 的设计文档是完整蓝图，但 MVP 只需要验证核心价值，不需要全部实现
+  2. **核心价值是"生命感"**：LifeOS 的本质不是功能列表，而是用户感觉到"TA 记得我、在乎我"，这是第一优先级验证的
+  3. **Domain First 保证架构完整性**：从 Domain 层做起，严格遵守 DDD 分层，避免 MVP 变成一次性代码
+  4. **全栈 MVP 避免后续重构**：纯前端 LocalStorage 方案在记忆 Schema 演化、账号绑定、多设备同步、后台运行等方面都会遇到根本性困难
+  5. **最小化基础设施复杂度**：单数据库（PostgreSQL + pgvector），不引入多余中间件，把精力放在核心体验上
+- **备选方案**：
+  1. **纯前端先行** — 数据存 LocalStorage，快速验证但后续重构成本极高，且无法实现时间连续性和长期演化
+  2. **全栈完整版** — 一步到位做完整系统，周期太长，验证太慢
+  3. **前端为主 + 简易后端 + Domain First（最终方案）** — 平衡速度与架构完整性，核心体验做扎实，架构不欠债
+- **最终方案**：
+  - **架构**：NestJS 后端 + Vue 3 前端 + PostgreSQL + pgvector，单数据库
+  - **MVP 范围**：Character + Personality + Memory + Emotion + LifeEngine 五个核心 Domain
+  - **成功标准**：用户能感受到"被记住"——"你居然记得？"
+  - **开发原则**：Domain 驱动，严格分层，事件驱动通信
+- **影响**：
+  - Phase 8.1 聚焦 Life Core MVP，6 周目标
+  - 后续 Phase 8.2（关系成长）、8.3（AIRI Body）可以直接扩展
+  - 技术栈确定：TypeScript 全栈 + PostgreSQL + pgvector
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-043：Domain Runtime 实现 — NestJS DDD 分层 + 事件总线
+
+- **背景**：Life Core MVP 的后端架构需要选择实现方式，确保 Domain 逻辑清晰、可测试、可扩展。
+- **为什么**：
+  1. **NestJS 天然契合 DDD**：Module + Provider + 依赖注入，与 Domain/Application/Infrastructure 分层完美对应
+  2. **TypeScript 全栈共享类型**：前后端共用类型定义，减少联调错误，提升开发效率
+  3. **事件总线解耦 Domain**：Domain 之间不直接调用，通过事件通信，符合架构规范，也方便后续扩展
+  4. **Repository 模式隔离基础设施**：Domain 层定义 Repository 接口，Infrastructure 层实现，方便替换数据库或 ORM
+  5. **可测试性好**：Domain 层纯逻辑，不依赖框架，容易写单元测试
+- **备选方案**：
+  1. **经典 MVC 分层** — 简单但业务逻辑容易散落在 Controller 和 Service 中，Domain 边界不清晰
+  2. **微服务架构** — 每个 Domain 一个服务，太重，MVP 阶段不需要
+  3. **NestJS + DDD 分层 + 事件总线（最终方案）** — 单体模块化，Domain 清晰，性能好，运维简单
+- **最终方案**：
+  - **框架**：NestJS
+  - **分层**：Domain / Application / Infrastructure / Interface 四层
+  - **通信**：EventEmitter2 事件总线，Domain 间事件驱动
+  - **ORM**：Prisma（类型安全，迁移管理方便）
+  - **目录结构**：每个 Domain 一个 Module，内部按四层组织
+- **影响**：
+  - 后端目录结构确定
+  - 开发规范明确：Domain 层不依赖框架，纯逻辑
+  - 测试策略：Domain 层单元测试 + API 层集成测试
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-044：记忆持久化策略 — PostgreSQL + pgvector，单库双表
+
+- **背景**：Memory 是 MVP 的核心模块，记忆存储方案直接决定检索质量和开发成本。需要选择向量存储方案和记忆持久化策略。
+- **为什么**：
+  1. **避免双数据库复杂度**：MVP 阶段数据量小（<10万条），pgvector 性能够用，同时维护 PG + Milvus 两套系统成本太高
+  2. **事务一致性**：记忆写入 + 向量写入在同一个事务中，不会出现数据不一致
+  3. **主记忆表 + 向量表分表**：向量表单独存，避免影响主表查询性能，需要时 JOIN 查询
+  4. **混合检索策略**：语义检索 + 时间检索 + 重要性加权，三路召回 RRF 融合，比单纯向量检索效果好
+  5. **可迁移性**：后续数据量大了可以平滑迁移到专门的向量数据库，Domain 层接口不变
+- **备选方案**：
+  1. **专用向量数据库（Milvus / Pinecone）** — 性能好但运维复杂，MVP 阶段过重
+  2. **纯关键词检索** — 简单但语义理解能力差，"生命感"体验不好
+  3. **PostgreSQL + pgvector，单库双表 + 混合检索（最终方案）** — 平衡效果、复杂度、成本
+- **最终方案**：
+  - **主数据库**：PostgreSQL 15+
+  - **向量扩展**：pgvector
+  - **分表策略**：memories 主表 + memory_embeddings 向量表，一对一
+  - **检索策略**：三路召回（语义 + 时间 + 重要性）+ RRF 融合排序
+  - **索引**：IVFFlat 索引（MVP 阶段够用）
+  - **向量维度**：1536 维（兼容 OpenAI text-embedding-ada-002）
+- **影响**：
+  - 数据库依赖确定，需要 CREATE EXTENSION vector
+  - Memory Domain 按 Repository 模式设计，后续换向量库只改 Infrastructure 层
+  - 检索质量是 MVP 成败的关键，需要做 A/B 测试调优
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
+## ADR-045：LifeEngine MVP 范围 — 事件驱动调度，不做自主行为
+
+- **背景**：LifeEngine 是数字生命的调度中心，但 MVP 阶段应该做到什么程度需要明确。是只做事件响应，还是一开始就做自主行为？
+- **为什么**：
+  1. **MVP 的核心是"被记住"**：验证记忆闭环，不是验证主动性。自主行为是锦上添花，不是 MVP 必需
+  2. **自主行为复杂度高**：涉及目标系统、行为规划、时机判断、多模态输出等，工作量大，且效果难保证
+  3. **事件驱动是基础**：先把事件驱动的调度框架搭好，后续自主行为可以在这个基础上扩展
+  4. **保持 MVP 聚焦**：少即是多，把记忆和情绪做扎实，比做一堆半吊子功能强
+  5. **Phase 8.2 再上自主行为**：分阶段推进，每个阶段有明确的验证目标
+- **备选方案**：
+  1. **完整 LifeEngine（含自主行为）** — 功能全但周期长，MVP 验证慢
+  2. **纯响应式，没有 LifeEngine 层** — 简单但架构不完整，后续加自主行为要重构
+  3. **事件驱动调度 + 状态快照，不做自主行为（最终方案）** — 框架到位，核心功能聚焦，后续平滑扩展
+- **最终方案**：
+  - **LifeEngine 职责**：事件接收与分发、Domain 协调、状态快照、生命周期管理
+  - **不做**：自主行为调度、目标系统、行为规划
+  - **实现**：NestJS EventEmitter2 + 事件驱动架构
+  - **状态快照**：重要事件后保存快照，供前端展示和后续分析
+  - **自主行为**：Phase 8.2 再做
+- **影响**：
+  - Phase 8.1 范围明确，聚焦记忆闭环
+  - LifeEngine 接口按完整生命周期设计，实现可以逐步填充
+  - 为 Phase 8.2（关系成长 + 自主行为）打好架构基础
+- **日期**：2026-07-08
+- **负责人**：Chief Architect
+
+---
+
 ## 相关文档
 
 - [AGENTS.md](file:///workspace/AGENTS.md) — 入口索引（最高优先级）
@@ -1101,6 +1213,12 @@
 - [26-api-platform-design.md](file:///workspace/docs/26-api-platform-design.md) — API 开放平台设计
 - [27-digital-life-protocol.md](file:///workspace/docs/27-digital-life-protocol.md) — Digital Life Protocol
 - [28-ecosystem-data-model.md](file:///workspace/docs/28-ecosystem-data-model.md) — 开放生态数据模型
+- [29-life-core-mvp-architecture.md](file:///workspace/docs/29-life-core-mvp-architecture.md) — Life Core MVP 架构设计（Phase 8.1）
+- [30-character-runtime.md](file:///workspace/docs/30-character-runtime.md) — Character Runtime 设计
+- [31-life-memory-implementation.md](file:///workspace/docs/31-life-memory-implementation.md) — Memory 实现设计
+- [32-emotion-runtime.md](file:///workspace/docs/32-emotion-runtime.md) — Emotion Runtime 设计
+- [33-life-engine-runtime.md](file:///workspace/docs/33-life-engine-runtime.md) — LifeEngine Runtime 设计
+- [34-life-core-data-model.md](file:///workspace/docs/34-life-core-data-model.md) — Life Core 数据模型
 
 ---
 

@@ -375,6 +375,25 @@ Existing Code
 
 **全部完成后，Phase 7 才算 ✅ Completed。**
 
+### Phase 8 验收清单（数字生命实现）
+
+#### Phase 8.1: Life Core MVP
+
+```
+□ Life Core MVP 架构设计（29-life-core-mvp-architecture.md）
+□ Character Runtime 设计（30-character-runtime.md）
+□ Memory 实现设计（31-life-memory-implementation.md）
+□ Emotion Runtime 设计（32-emotion-runtime.md）
+□ LifeEngine Runtime 设计（33-life-engine-runtime.md）
+□ Life Core 数据模型设计（34-life-core-data-model.md）
+□ ADR-042~045 记录完成
+□ 所有文档互相链接
+□ 更新 AGENTS.md / 01_系统架构总览.md
+□ Git Commit
+```
+
+**全部完成后，Phase 8.1 才算 ✅ Completed。**
+
 详见 [development-rules.md 第十一节](file:///workspace/docs/development-rules.md)。
 
 ---
@@ -465,15 +484,27 @@ Phase 7: 开放生态  ✅ Completed
         ├─ ADR 记录           ✅ Completed（ADR-037 ~ ADR-041）
         ├─ 文档互相链接        ✅ Completed
         └─ Git Commit         ✅ Completed（5921909）
+    ↓
+Phase 8: 数字生命实现  🟡 Planned
+    └─ Phase 8.1 Life Core MVP  🟠 In Progress
+        ├─ MVP 架构设计           ✅ Completed（29-life-core-mvp-architecture.md）
+        ├─ Character Runtime     ✅ Completed（30-character-runtime.md）
+        ├─ Memory 实现设计       ✅ Completed（31-life-memory-implementation.md）
+        ├─ Emotion Runtime       ✅ Completed（32-emotion-runtime.md）
+        ├─ LifeEngine Runtime    ✅ Completed（33-life-engine-runtime.md）
+        ├─ 数据模型设计           ✅ Completed（34-life-core-data-model.md）
+        ├─ ADR 记录           ✅ Completed（ADR-042 ~ ADR-045）
+        ├─ 文档互相链接        🟡 Planned
+        └─ Git Commit         🟡 Planned
 ```
 
-> ✅ **Phase 7 已完成**：开放生态架构 + Plugin/Developer/API 三域 + Digital Life Protocol + 数据模型 + ADR-037~041 已全部提交（5921909）。
-> 所有 Phase 设计阶段已完成，LifeOS Social 完整设计蓝图就绪。
+> 🟠 **Phase 8.1 进行中**：Life Core MVP 设计文档已完成，待文档链接与 Git Commit。
+> 从设计阶段进入实施阶段，第一个目标是验证"生命感"闭环。
 
 ---
 
-**文档版本**: v2.3
+**文档版本**: v2.4
 **对应 Master Prompt**: v2.0
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect
-**变更说明**: v2.3 Phase 7 标记为 Completed，所有 Phase 设计阶段完成。
+**变更说明**: v2.4 新增 Phase 8（数字生命实现），Phase 8.1 Life Core MVP 设计进行中。
