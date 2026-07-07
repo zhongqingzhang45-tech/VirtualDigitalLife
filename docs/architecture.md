@@ -543,10 +543,14 @@ Presentation → Application → Domain ← Infrastructure
 - [08-relationship-domain.md](file:///workspace/docs/08-relationship-domain.md) — Relationship Domain 详细设计
 - [09-engine-framework.md](file:///workspace/docs/09-engine-framework.md) — Engine 框架与调度器设计
 - [10-digital-life-data-model.md](file:///workspace/docs/10-digital-life-data-model.md) — 数字生命引擎数据模型
+- [11-community-domain.md](file:///workspace/docs/11-community-domain.md) — Community Domain 详细设计（Phase 4）
+- [12-world-state-domain.md](file:///workspace/docs/12-world-state-domain.md) — WorldState Domain 详细设计
+- [13-timeline-domain.md](file:///workspace/docs/13-timeline-domain.md) — Timeline Domain 详细设计
+- [14-community-data-model.md](file:///workspace/docs/14-community-data-model.md) — 社区系统数据模型
 
 ---
 
-**文档版本**: v1.2
+**文档版本**: v1.3
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect
-**变更说明**: v1.2 新增 Phase 3 数字生命引擎相关文档链接（Brain-Body 架构 / Emotion / Goal / Relationship / Engine 框架 / 数据模型）。
+**变更说明**: v1.3 新增 Phase 4 社区系统相关文档链接（Community / WorldState / Timeline / 数据模型）。
