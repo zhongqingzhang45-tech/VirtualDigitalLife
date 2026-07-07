@@ -428,26 +428,26 @@ Phase 4: 社区系统  ✅ Completed
     ↓
 Phase 5: 记忆系统  ✅ Completed
     ↓
-Phase 6: 商业化  🟠 In Progress
+Phase 6: 商业化  ✅ Completed
         ├─ 商业化总体架构       ✅ Completed（18-commercial-architecture.md）
         ├─ 会员订阅系统         ✅ Completed（19-subscription-domain.md）
         ├─ 钱包与虚拟资产       ✅ Completed（20-wallet-asset-domain.md）
         ├─ AI Marketplace       ✅ Completed（21-marketplace-domain.md）
         ├─ 数据模型设计         ✅ Completed（22-commercial-data-model.md）
         ├─ ADR 记录           ✅ Completed（ADR-033 ~ ADR-036）
-        ├─ 文档互相链接        🟡 Planned
-        └─ Git Commit         🟡 Planned（待用户确认后执行）
+        ├─ 文档互相链接        ✅ Completed
+        └─ Git Commit         ✅ Completed（bd32d2a）
     ↓
 Phase 7: 开放生态  🟡 Planned
 ```
 
-> 🟠 **Phase 6 进行中**：已完成商业化架构 + 订阅/钱包/Marketplace 三域 + 数据模型 + ADR-033~036。
-> 剩余文档互相链接与 Git Commit。
+> ✅ **Phase 6 已完成**：商业化架构 + 订阅/钱包/Marketplace 三域 + 数据模型 + ADR-033~036 已全部提交（bd32d2a）。
+> 下一阶段：Phase 7 开放生态。
 
 ---
 
-**文档版本**: v2.0
+**文档版本**: v2.1
 **对应 Master Prompt**: v2.0
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect
-**变更说明**: v2.0 新增 Phase 6 验收清单，更新当前阶段为 Phase 6 In Progress。
+**变更说明**: v2.1 Phase 6 标记为 Completed。
