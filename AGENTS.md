@@ -494,17 +494,17 @@ Phase 8: 数字生命实现  🟡 Planned
         ├─ LifeEngine Runtime    ✅ Completed（33-life-engine-runtime.md）
         ├─ 数据模型设计           ✅ Completed（34-life-core-data-model.md）
         ├─ ADR 记录           ✅ Completed（ADR-042 ~ ADR-045）
-        ├─ 文档互相链接        🟡 Planned
-        └─ Git Commit         🟡 Planned
+        ├─ 文档互相链接        ✅ Completed
+        └─ Git Commit         ✅ Completed（cac4a8b）
 ```
 
-> 🟠 **Phase 8.1 进行中**：Life Core MVP 设计文档已完成，待文档链接与 Git Commit。
-> 从设计阶段进入实施阶段，第一个目标是验证"生命感"闭环。
+> ✅ **Phase 8.1 设计已完成**：Life Core MVP 架构设计、5 个 Domain 运行时设计、数据模型、ADR-042~045 已全部提交（cac4a8b）。
+> 设计阶段闭环，下一步进入代码实现。
 
 ---
 
-**文档版本**: v2.4
+**文档版本**: v2.5
 **对应 Master Prompt**: v2.0
 **最后更新**: 2026-07-08
 **维护者**: Chief Architect
-**变更说明**: v2.4 新增 Phase 8（数字生命实现），Phase 8.1 Life Core MVP 设计进行中。
+**变更说明**: v2.5 Phase 8.1 Life Core MVP 设计完成，Git Commit cac4a8b。
