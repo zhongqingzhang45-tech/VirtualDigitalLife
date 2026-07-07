@@ -1,0 +1,206 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== 扩展：pgvector =====
+// 需要在数据库中先执行: CREATE EXTENSION IF NOT EXISTS vector;
+
+model User {
+  id        String    @id @default(uuid())
+  email     String?   @unique
+  phone     String?   @unique
+  passwordHash String? @map("password_hash")
+  nickname  String?
+  avatarUrl String?   @map("avatar_url")
+  status    String    @default("active")
+
+  digitalLives DigitalLife[]
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("users")
+}
+
+model DigitalLife {
+  id                    String   @id @default(uuid())
+  userId                String   @map("user_id")
+  user                  User     @relation(fields: [userId], references: [id])
+
+  name                  String
+  avatarUrl             String?  @map("avatar_url")
+  bio                   String?
+
+  status                String   @default("active")
+  birthTime             DateTime @default(now()) @map("birth_time")
+  lastActiveTime        DateTime @default(now()) @map("last_active_time")
+
+  totalInteractionCount Int      @default(0) @map("total_interaction_count")
+  totalMemoryCount      Int      @default(0) @map("total_memory_count")
+
+  personalityProfile    PersonalityProfile?
+  memories              Memory[]
+  emotionSnapshots      EmotionSnapshot[]
+  chatMessages          ChatMessage[]
+
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  deletedAt             DateTime? @map("deleted_at")
+
+  @@index([userId])
+  @@index([status])
+  @@map("digital_lives")
+}
+
+model PersonalityProfile {
+  id                 String     @id @default(uuid())
+  digitalLifeId      String     @unique @map("digital_life_id")
+  digitalLife        DigitalLife @relation(fields: [digitalLifeId], references: [id])
+
+  version            String     @default("1.0")
+  archetype          String
+
+  // OCEAN 五因素（0-100）
+  oceanOpenness      Int        @default(50) @map("ocean_openness")
+  oceanConscientiousness Int   @default(50) @map("ocean_conscientiousness")
+  oceanExtraversion  Int        @default(50) @map("ocean_extraversion")
+  oceanAgreeableness Int        @default(50) @map("ocean_agreeableness")
+  oceanNeuroticism   Int        @default(50) @map("ocean_neuroticism")
+
+  // LifeOS 五特质（0-100）
+  lifeosWarmth       Int        @default(50) @map("lifeos_warmth")
+  lifeosCuriosity    Int        @default(50) @map("lifeos_curiosity")
+  lifeosIndependence Int        @default(50) @map("lifeos_independence")
+  lifeosHumor        Int        @default(50) @map("lifeos_humor")
+  lifeosEmpathy      Int        @default(50) @map("lifeos_empathy")
+
+  // 表达风格
+  expressionSpeechRate  String  @default("normal") @map("expression_speech_rate")
+  expressionFormality   String  @default("normal") @map("expression_formality")
+  expressionEmojiUsage  String  @default("normal") @map("expression_emoji_usage")
+
+  customConfig     Json?
+
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("personality_profiles")
+}
+
+model Memory {
+  id               String   @id @default(uuid())
+  digitalLifeId    String   @map("digital_life_id")
+  digitalLife      DigitalLife @relation(fields: [digitalLifeId], references: [id])
+  userId           String   @map("user_id")
+
+  type             String
+  source           String
+  importance       Decimal  @db.Decimal(3, 2) @default(0.3)
+
+  content          String
+  rawContent       String?  @map("raw_content")
+
+  emotionTags      String[] @default([]) @map("emotion_tags")
+  emotionIntensity Decimal  @db.Decimal(3, 2) @default(0.0) @map("emotion_intensity")
+
+  entities         Json     @default("[]")
+
+  eventTime        DateTime? @map("event_time")
+  recordedAt       DateTime  @default(now()) @map("recorded_at")
+
+  accessCount      Int       @default(0) @map("access_count")
+  lastAccessedAt   DateTime? @map("last_accessed_at")
+
+  sourceMessageId  String?   @map("source_message_id")
+
+  embedding        MemoryEmbedding?
+
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  @@index([digitalLifeId])
+  @@index([userId])
+  @@index([type])
+  @@index([importance])
+  @@index([recordedAt])
+  @@index([emotionTags], type: Gin)
+  @@map("memories")
+}
+
+model MemoryEmbedding {
+  memoryId      String   @id @map("memory_id")
+  memory        Memory   @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+  digitalLifeId String   @map("digital_life_id")
+
+  // 使用 Unsupported 类型表示 pgvector 的 vector 类型
+  embedding     Unsupported("vector(1536)")
+  model         String
+
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([digitalLifeId])
+  @@map("memory_embeddings")
+}
+
+model EmotionSnapshot {
+  id            String   @id @default(uuid())
+  digitalLifeId String   @map("digital_life_id")
+  digitalLife   DigitalLife @relation(fields: [digitalLifeId], references: [id])
+
+  joy           Int      @default(50)
+  trust         Int      @default(30)
+  concern       Int      @default(20)
+  sadness       Int      @default(10)
+  curiosity     Int      @default(60)
+
+  baselineJoy       Int @default(50) @map("baseline_joy")
+  baselineTrust     Int @default(30) @map("baseline_trust")
+  baselineConcern   Int @default(20) @map("baseline_concern")
+  baselineSadness   Int @default(10) @map("baseline_sadness")
+  baselineCuriosity Int @default(60) @map("baseline_curiosity")
+
+  triggerType        String  @map("trigger_type")
+  triggerDescription String? @map("trigger_description")
+  triggerSourceId    String? @map("trigger_source_id")
+
+  deltaJoy       Int @default(0) @map("delta_joy")
+  deltaTrust     Int @default(0) @map("delta_trust")
+  deltaConcern   Int @default(0) @map("delta_concern")
+  deltaSadness   Int @default(0) @map("delta_sadness")
+  deltaCuriosity Int @default(0) @map("delta_curiosity")
+
+  recordedAt DateTime @default(now()) @map("recorded_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([digitalLifeId])
+  @@index([recordedAt])
+  @@map("emotion_snapshots")
+}
+
+model ChatMessage {
+  id            String   @id @default(uuid())
+  digitalLifeId String   @map("digital_life_id")
+  digitalLife   DigitalLife @relation(fields: [digitalLifeId], references: [id])
+  userId        String   @map("user_id")
+
+  role          String
+  content       String
+
+  memoryId      String?
+  tokensUsed    Int?     @map("tokens_used")
+  modelUsed     String?  @map("model_used")
+
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([digitalLifeId, createdAt])
+  @@index([userId, createdAt])
+  @@map("chat_messages")
+}

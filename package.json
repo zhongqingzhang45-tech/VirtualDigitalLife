@@ -1,0 +1,20 @@
+{
+  "name": "lifeos",
+  "private": true,
+  "version": "0.1.0",
+  "description": "LifeOS Social - Digital Life Platform",
+  "packageManager": "pnpm@10.28.1",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev:backend": "pnpm --filter @lifeos/backend dev",
+    "build:backend": "pnpm --filter @lifeos/backend build",
+    "start:backend": "pnpm --filter @lifeos/backend start:prod",
+    "prisma:generate": "pnpm --filter @lifeos/backend prisma:generate",
+    "prisma:migrate": "pnpm --filter @lifeos/backend prisma:migrate",
+    "db:setup": "pnpm --filter @lifeos/backend db:setup",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  }
+}

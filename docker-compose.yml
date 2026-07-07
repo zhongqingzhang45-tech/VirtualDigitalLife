@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: pgvector/pgvector:0.7.0-pg16
+    container_name: lifeos-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: lifeos
+      POSTGRES_USER: lifeos
+      POSTGRES_PASSWORD: lifeos_dev
+    volumes:
+      - lifeos-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lifeos -d lifeos"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: lifeos-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - lifeos-redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  lifeos-pgdata:
+  lifeos-redisdata:
